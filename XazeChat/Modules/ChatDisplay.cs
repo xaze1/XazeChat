@@ -14,9 +14,6 @@ using RueI.Displays;
 using RueI.Elements;
 using RueI.Extensions.HintBuilding;
 using RueI.Parsing.Enums;
-using XazeAPI.API.Extensions;
-using XazeAPI.API.Helpers;
-using XazeChat.Modules.MessageTypes;
 
 namespace XazeChat.Modules;
 
@@ -54,11 +51,7 @@ public static class ChatDisplay
             sb.SetColor(Color.DimGray)
                 .Append("[" + msg.Timestamp.ToString("HH:mm:ss") + "] ")
                 .CloseColor()
-                .SetColor(MainHelper.ColorFromRGB(msg.Role.RoleColor))
-                .Append(msg.Username)
-                .CloseColor()
-                .SetColor(Color.DarkGray)
-                .AppendLine(": " + msg.Message);
+                .AppendLine(msg.DisplayMessage(user));
         }
         
         return sb.ToString();

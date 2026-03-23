@@ -22,5 +22,6 @@ namespace XazeChat.Modules.MessageTypes
         DateTimeOffset Timestamp { get; }
         void Remove();
         bool IsVisible(Player Viewer);
+        string DisplayMessage(Player Viewer);
     }
 }

@@ -5,7 +5,11 @@
 // //
 // // I <3 🦈s :3c
 
+using System.Drawing;
 using LabApi.Features.Wrappers;
+using NorthwoodLib.Pools;
+using RueI.Extensions.HintBuilding;
+using XazeAPI.API.Helpers;
 
 namespace XazeChat.Modules.MessageTypes;
 
@@ -14,5 +18,14 @@ public class SystemChatMessage(string message) : GlobalChatMessage(Player.Host, 
     public override bool IsVisible(Player Viewer)
     {
         return true;
+    }
+    
+    public override string DisplayMessage(Player Viewer)
+    {
+        var sb = StringBuilderPool.Shared.Rent();
+        sb.SetColor(Color.DarkCyan)
+            .AppendLine(Message);
+
+        return StringBuilderPool.Shared.ToStringReturn(sb);
     }
 }

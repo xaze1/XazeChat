@@ -17,6 +17,7 @@ using XazeChat.Modules;
 namespace XazeChat;
 
 [CommandHandler(typeof(ClientCommandHandler))]
+[CommandHandler(typeof(GameConsoleCommandHandler))]
 public class ChatCommand : ICommand
 {
     public string Command => "chat";
@@ -33,8 +34,15 @@ public class ChatCommand : ICommand
         
         if (sender is not PlayerCommandSender cmdSender)
         {
-            response = "";
-            return false;
+            if (!MainHelper.getArrayText(arguments, 0, out string systemMsg))
+            {
+                response = "Invalid chat message";
+                return false;
+            }
+            
+            response = "Send System message!";
+            ChatManager.SendSystemMessage(systemMsg);
+            return true;
         }
 
         var user = Player.Get(cmdSender.ReferenceHub);

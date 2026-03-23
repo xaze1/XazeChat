@@ -7,9 +7,12 @@
 
 using System;
 using LabApi.Features.Wrappers;
+using NorthwoodLib.Pools;
 using PlayerRoles;
+using RueI.Extensions.HintBuilding;
 using UnityEngine;
 using XazeAPI.API;
+using XazeAPI.API.Helpers;
 
 namespace XazeChat.Modules.MessageTypes;
 
@@ -31,6 +34,18 @@ public class ProximityChatMessage : IMessage
     public bool IsVisible(Player Viewer)
     {
         return Viewer.CurrentlySpectating != null && Viewer.CurrentlySpectating.PlayerId == Owner;
+    }
+    
+    public string DisplayMessage(Player Viewer)
+    {
+        var sb = StringBuilderPool.Shared.Rent();
+        sb.SetColor(MainHelper.ColorFromRGB(Role.RoleColor))
+            .Append(Username)
+            .CloseColor()
+            .SetColor(System.Drawing.Color.DarkGray)
+            .AppendLine(": " + Message);
+
+        return StringBuilderPool.Shared.ToStringReturn(sb);
     }
 
     public ProximityChatMessage(Player user, string message)
