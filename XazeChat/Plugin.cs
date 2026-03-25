@@ -33,14 +33,14 @@ namespace XazeChat
         {
             Singleton = this;
             ChatDisplay.Enable();
-            Logging.Info("[XazeChat] Enabled");
+            Logging.Info("Enabled");
         }
 
         public override void Disable()
         {
             Singleton = null;
             ChatDisplay.Disable();
-            Logging.Info("[XazeChat] Disabled");
+            Logging.Info("Disabled");
         }
     }
 }
