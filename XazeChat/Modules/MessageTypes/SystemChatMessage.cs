@@ -24,7 +24,7 @@ public class SystemChatMessage(string message) : GlobalChatMessage(Player.Host, 
     {
         var sb = StringBuilderPool.Shared.Rent();
         sb.SetColor(Color.DarkCyan)
-            .AppendLine(Message);
+            .Append(Message);
 
         return StringBuilderPool.Shared.ToStringReturn(sb);
     }

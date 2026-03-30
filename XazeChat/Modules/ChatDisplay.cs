@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using LabApi.Features.Wrappers;
+using NorthwoodLib.Pools;
 using PlayerRoles;
 using RueI.Displays;
 using RueI.Elements;
@@ -41,8 +42,8 @@ public static class ChatDisplay
             return "";
         }
         
-        var sb = new StringBuilder()
-            .SetAlignment(HintBuilding.AlignStyle.Left) 
+        var sb = StringBuilderPool.Shared.Rent()
+            .SetAlignment(HintBuilding.AlignStyle.Left)
             .SetLineHeight(-25)
             .SetSize(50, MeasurementUnit.Percentage);
 
@@ -54,6 +55,6 @@ public static class ChatDisplay
                 .AppendLine(msg.DisplayMessage(user));
         }
         
-        return sb.ToString();
+        return StringBuilderPool.Shared.ToStringReturn(sb.CloseLineHeight());
     }
 }

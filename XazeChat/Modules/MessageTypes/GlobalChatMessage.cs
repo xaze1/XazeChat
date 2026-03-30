@@ -41,7 +41,7 @@ public class GlobalChatMessage : IMessage
             .Append(Username)
             .CloseColor()
             .SetColor(Color.DarkGray)
-            .AppendLine(": " + Message);
+            .Append(": " + Message);
 
         return StringBuilderPool.Shared.ToStringReturn(sb);
     }

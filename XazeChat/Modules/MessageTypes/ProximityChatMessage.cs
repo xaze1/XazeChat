@@ -43,7 +43,7 @@ public class ProximityChatMessage : IMessage
             .Append(Username)
             .CloseColor()
             .SetColor(System.Drawing.Color.DarkGray)
-            .AppendLine(": " + Message);
+            .Append(": " + Message);
 
         return StringBuilderPool.Shared.ToStringReturn(sb);
     }
