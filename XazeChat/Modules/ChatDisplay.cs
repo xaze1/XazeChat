@@ -7,7 +7,8 @@
 
 using System.Drawing;
 using System.Linq;
-using System.Text;
+using LabApi.Events.Arguments.PlayerEvents;
+using LabApi.Events.Handlers;
 using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
 using PlayerRoles;
@@ -21,17 +22,39 @@ namespace XazeChat.Modules;
 public static class ChatDisplay
 {
     public static DynamicElement ChatElement;
-    public static AutoElement Auto;
+    private static readonly IElemReference<DynamicElement> _ref = DisplayCore.GetReference<DynamicElement>();
 
     public static void Enable()
     {
         ChatElement ??= new(FormatChatMessages, 350);
-        Auto = new(Roles.Dead | Roles.Scps, ChatElement);
+        PlayerEvents.Joined += OnJoined;
+        foreach (var plr in Player.ReadyList)
+        {
+            var core = DisplayCore.Get(plr.ReferenceHub);
+            core.AddAsReference(_ref, ChatElement);
+            core.Update();
+        }
     }
 
     public static void Disable()
     {
-        Auto?.Disable();
+        PlayerEvents.Joined -= OnJoined;
+        foreach (var plr in Player.ReadyList)
+        {
+            var core = DisplayCore.Get(plr.ReferenceHub);
+            core.RemoveReference(_ref);
+            core.Update();
+        }
+    }
+
+    private static void OnJoined(PlayerJoinedEventArgs args)
+    {
+        if (!args.Player.IsPlayer)
+            return;
+
+        var core = DisplayCore.Get(args.Player.ReferenceHub);
+        core.AddAsReference(_ref, ChatElement);
+        core.Update();
     }
 
     public static string FormatChatMessages(DisplayCore core)

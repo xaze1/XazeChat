@@ -23,7 +23,7 @@ public class SystemChatMessage(string message) : GlobalChatMessage(Player.Host, 
     public override string DisplayMessage(Player Viewer)
     {
         var sb = StringBuilderPool.Shared.Rent();
-        sb.SetColor(Color.DarkCyan)
+        sb.SetColor(Color.Yellow)
             .Append(Message);
 
         return StringBuilderPool.Shared.ToStringReturn(sb);

@@ -6,6 +6,11 @@
 // // I <3 🦈s :3c
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using CustomPlayerEffects;
+using Discord;
+using InventorySystem.Items.Firearms.Modules;
 using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
 using PlayerRoles;
@@ -18,22 +23,30 @@ namespace XazeChat.Modules.MessageTypes;
 
 public class ProximityChatMessage : IMessage
 {
+    public const float ProximityRange = 15;
     public PlayerRoleBase Role { get; }
     public uint Owner { get; }
     public string Username { get; }
     public string Message { get; }
     public StopTimer Timer { get; }
-    public TextToy TextObject { get; }
     public DateTimeOffset Timestamp { get; }
-
-    public void Remove()
-    {
-        TextObject.Destroy();
-    }
+    private readonly List<Player> VisibleTo = new();
     
     public bool IsVisible(Player Viewer)
     {
-        return Viewer.CurrentlySpectating != null && Viewer.CurrentlySpectating.PlayerId == Owner;
+        // Any spectator spectating the player sees the message and anyone that was nearby at the time of sending the message
+        if (VisibleTo.Contains(Viewer))
+            return true;
+        
+        var plr = Player.Get(Owner);
+        if (plr != null && (plr.GetEffect<Scp1576>()?.IsEnabled ?? false))
+            return true;
+        
+        return Viewer.CurrentlySpectating != null && Viewer.CurrentlySpectating.NetworkId == Owner;
+    }
+    
+    public void Remove()
+    {
     }
     
     public string DisplayMessage(Player Viewer)
@@ -55,10 +68,17 @@ public class ProximityChatMessage : IMessage
         Username = user.DisplayName;
         Message = message;
         Timer = new(TimeSpan.FromSeconds(30), () => ChatManager.RemoveMessage(this));
-        
-        TextObject = TextToy.Create(new Vector3(0, 1, 0), user.Camera);
-        TextObject.TextFormat = message;
-        TextObject.Spawn();
         Timestamp = DateTimeOffset.Now;
+        VisibleTo.Add(user);
+
+        foreach (var col in Physics.OverlapSphere(user.Position, ProximityRange, HitscanHitregModuleBase.HitregMask))
+        {
+            if (!col.TryGetComponent(out HitboxIdentity hitbox) || VisibleTo.Any(plr => plr.ReferenceHub == hitbox.TargetHub))
+            {
+                continue;
+            }
+            
+            VisibleTo.Add(Player.Get(hitbox.TargetHub));
+        }
     }
 }

@@ -6,7 +6,10 @@
 // // I <3 🦈s :3c
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using CustomPlayerEffects;
 using LabApi.Features.Wrappers;
 using NorthwoodLib.Pools;
 using PlayerRoles;
@@ -18,12 +21,14 @@ namespace XazeChat.Modules.MessageTypes;
 
 public class GlobalChatMessage : IMessage
 {
+    public static readonly Dictionary<ReferenceHub, DateTimeOffset> LastScp1576Usage = new();
     public PlayerRoleBase Role { get; }
     public uint Owner { get; }
     public string Username { get; }
     public string Message { get; }
     public StopTimer Timer { get; }
     public DateTimeOffset Timestamp { get; }
+    public TimeSpan TimeSinceSent => DateTimeOffset.Now - Timestamp;
     
     public void Remove()
     {
@@ -31,7 +36,8 @@ public class GlobalChatMessage : IMessage
 
     public virtual bool IsVisible(Player Viewer)
     {
-        return !Viewer.IsAlive;
+        // Player sees the message if dead OR actively using SCP-1576 AND message was sent after usage started
+        return !Viewer.IsAlive || (Viewer.GetEffect<Scp1576>()?.IsEnabled ?? false) && LastScp1576Usage.TryGetValue(Viewer.ReferenceHub, out var started) && started < Timestamp;
     }
 
     public virtual string DisplayMessage(Player Viewer)
@@ -54,5 +60,16 @@ public class GlobalChatMessage : IMessage
         Message = message;
         Timer = new(TimeSpan.FromSeconds(30), () => ChatManager.RemoveMessage(this));
         Timestamp = DateTimeOffset.Now;
+    }
+
+    static GlobalChatMessage()
+    {
+        StatusEffectBase.OnEnabled += (effect) =>
+        {
+            if (effect is not Scp1576)
+                return;
+            
+            LastScp1576Usage[effect.Hub] = DateTimeOffset.Now;
+        };
     }
 }

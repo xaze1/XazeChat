@@ -13,6 +13,7 @@ public class ScpChatMessage(Player user, string message) : GlobalChatMessage(use
 {
     public override bool IsVisible(Player Viewer)
     {
-        return Viewer.IsSCP;
+        // Player is a SCP AND the message was sent AFTER they became one
+        return Viewer.IsSCP && Viewer.RoleBase.ActiveTime >= TimeSinceSent.TotalSeconds;
     }
 }
